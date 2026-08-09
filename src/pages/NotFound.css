@@ -1,0 +1,21 @@
+.not-found {
+  text-align: center;
+  padding-top: 100px;
+  padding-bottom: 100px;
+}
+
+.not-found h1 {
+  font-size: 2rem;
+  margin-bottom: 14px;
+}
+
+.not-found p:not(.section-label) {
+  color: var(--text-dim);
+  margin-bottom: 28px;
+}
+
+.not-found .section-label {
+  font-size: 3rem;
+  color: var(--accent);
+  margin-bottom: 8px;
+}

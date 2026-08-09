@@ -1,0 +1,37 @@
+.project-detail {
+  max-width: 760px;
+}
+
+.project-detail-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.project-detail-head h1 {
+  font-size: 1.6rem;
+  margin: 0;
+}
+
+.project-detail img {
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+
+.project-detail-desc {
+  color: var(--text);
+  margin-bottom: 20px;
+  font-size: 1rem;
+}
+
+.project-detail .project-tags {
+  margin-bottom: 28px;
+}
+
+.project-detail-links {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}

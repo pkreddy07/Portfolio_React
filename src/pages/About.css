@@ -1,0 +1,33 @@
+.about-content {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: 44px;
+}
+
+.about-photo img {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.about-text {
+  flex: 1 1 350px;
+}
+
+.about-text p {
+  margin-bottom: 16px;
+}
+
+.about-text h3 {
+  margin-top: 8px;
+}
+
+@media (max-width: 768px) {
+  .about-content {
+    flex-direction: column;
+  }
+}
