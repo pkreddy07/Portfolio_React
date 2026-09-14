@@ -1,0 +1,163 @@
+{
+  "info": {
+    "_postman_id": "portfolio-api-collection",
+    "name": "React Portfolio Express API Collection",
+    "description": "Postman Collection testing all endpoints (B1-B7) for Assignment 3 Express Backend.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "B1 - Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": [""]
+        }
+      }
+    },
+    {
+      "name": "B2 - Get All Projects",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/projects",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "projects"]
+        }
+      }
+    },
+    {
+      "name": "B3 - Get Single Project (Success)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/projects/luminai",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "projects", "luminai"]
+        }
+      }
+    },
+    {
+      "name": "B3 - Get Single Project (Failure - 404)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/projects/nonexistent",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "projects", "nonexistent"]
+        }
+      }
+    },
+    {
+      "name": "B4 - Submit Contact Form (Success - 201)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Alice Developer\",\n  \"email\": \"alice@example.com\",\n  \"message\": \"Hello, love your portfolio projects!\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/contact",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "contact"]
+        }
+      }
+    },
+    {
+      "name": "B4 - Submit Contact Form (Failure - Missing Fields 400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"\",\n  \"email\": \"alice@example.com\",\n  \"message\": \"Missing name field\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/contact",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "contact"]
+        }
+      }
+    },
+    {
+      "name": "B4 - Submit Contact Form (Failure - Invalid Email 400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Bob Smith\",\n  \"email\": \"invalid-email-format\",\n  \"message\": \"Testing invalid email format\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/contact",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "contact"]
+        }
+      }
+    },
+    {
+      "name": "B5 - List Contact Submissions",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/contact",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "contact"]
+        }
+      }
+    },
+    {
+      "name": "B6 - Catch-all 404 Handler",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/doesnotexist",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "doesnotexist"]
+        }
+      }
+    }
+  ]
+}

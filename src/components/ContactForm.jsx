@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './ContactForm.css';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const initialValues = { name: '', email: '', message: '' };
@@ -21,6 +22,8 @@ export default function ContactForm() {
   const [values, setValues] = useState(initialValues);
   const [touched, setTouched] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serverError, setServerError] = useState(null);
 
   const errors = validate(values);
   const isValid = Object.keys(errors).length === 0;
@@ -28,6 +31,7 @@ export default function ContactForm() {
   function handleChange(event) {
     const { name, value } = event.target;
     setValues((prev) => ({ ...prev, [name]: value }));
+    setServerError(null);
   }
 
   function handleBlur(event) {
@@ -35,15 +39,37 @@ export default function ContactForm() {
     setTouched((prev) => ({ ...prev, [name]: true }));
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
     setTouched({ name: true, email: true, message: true });
     if (!isValid) return;
 
-    // No backend yet — this assignment only wires up client-side state/validation.
-    setSubmitted(true);
-    setValues(initialValues);
-    setTouched({});
+    setIsSubmitting(true);
+    setServerError(null);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to submit form.');
+      }
+
+      setSubmitted(true);
+      setValues(initialValues);
+      setTouched({});
+    } catch (err) {
+      setServerError(err.message || 'An error occurred while sending your message.');
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   if (submitted) {
@@ -59,6 +85,12 @@ export default function ContactForm() {
 
   return (
     <form className="contact-form" onSubmit={handleSubmit} noValidate>
+      {serverError && (
+        <div className="form-server-error" role="alert">
+          <span>⚠ {serverError}</span>
+        </div>
+      )}
+
       <div className="form-group">
         <label htmlFor="name">--name</label>
         <input
@@ -69,6 +101,7 @@ export default function ContactForm() {
           value={values.name}
           onChange={handleChange}
           onBlur={handleBlur}
+          disabled={isSubmitting}
         />
         {touched.name && errors.name && <span className="form-error">{errors.name}</span>}
       </div>
@@ -83,6 +116,7 @@ export default function ContactForm() {
           value={values.email}
           onChange={handleChange}
           onBlur={handleBlur}
+          disabled={isSubmitting}
         />
         {touched.email && errors.email && <span className="form-error">{errors.email}</span>}
       </div>
@@ -97,12 +131,13 @@ export default function ContactForm() {
           value={values.message}
           onChange={handleChange}
           onBlur={handleBlur}
+          disabled={isSubmitting}
         />
         {touched.message && errors.message && <span className="form-error">{errors.message}</span>}
       </div>
 
-      <button type="submit" className="btn btn-primary" disabled={!isValid}>
-        $ send-message
+      <button type="submit" className="btn btn-primary" disabled={!isValid || isSubmitting}>
+        {isSubmitting ? '$ sending...' : '$ send-message'}
       </button>
     </form>
   );
