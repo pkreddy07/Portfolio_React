@@ -1,130 +1,248 @@
-# Pranav Kumar Reddy — Portfolio (React)
+# Pranav Kumar Reddy — Portfolio (React + Express MVC Backend)
 
-A React conversion of the static HTML/CSS portfolio, built with Vite and
-`react-router-dom`. Functional components + Hooks only, no external state
-library, no UI component framework.
+A full-stack React portfolio application powered by a Node.js/Express REST backend built following the Model-View-Controller (MVC) architecture.
 
-## Setup / run
+---
+
+## 🚀 How to Run the Application
+
+The project requires two simple commands to run — one for the backend server and one for the React frontend client.
+
+### 1. Start the Backend Server (`/server`)
 
 ```bash
+cd server
 npm install
-npm run dev       # start the dev server (http://localhost:5173)
-npm run build     # production build (dist/)
-npm run preview   # preview the production build locally
+npm run dev
+# Server will start on http://localhost:5000
 ```
 
-## Folder structure
-
-```
-src/
-  components/   # reusable UI pieces (Navbar, Footer, ProjectCard, ContactForm, ...)
-  pages/        # one component per route (Home, About, Projects, ProjectDetail, Contact, NotFound)
-  data/         # static content as plain JS objects/arrays (projects.js, skills.js, profile.js)
-  context/      # ThemeContext (dark/light state shared app-wide)
-  hooks/        # useWindowWidth (window resize subscription)
-  assets/       # images
+*Alternatively, from the project root:*
+```bash
+npm run server
 ```
 
-## Component tree & state-lifting decisions
+### 2. Start the Frontend Client (`React + Vite`)
 
-```
-main.jsx
-└─ ThemeProvider            (theme state lives here — top of the tree)
-   └─ BrowserRouter
-      └─ App
-         └─ Routes
-            └─ Layout                     (Navbar + <Outlet/> + Footer, persists across routes)
-               ├─ Navbar                  (reads theme via useContext, owns its own mobile-menu state)
-               ├─ <Outlet/>
-               │   ├─ Home                (owns `loading` state)
-               │   ├─ About
-               │   │   ├─ AboutBio        (prop-drill level 1: receives full `profile`)
-               │   │   │   └─ Education   (prop-drill level 2: receives only `profile.education`)
-               │   │   └─ Skills          (receives `skillCategories`)
-               │   ├─ Projects
-               │   │   └─ ProjectCard × N (owns its own `expanded` state — per instance)
-               │   │       └─ TechTags    (prop-drill level 2: ProjectsPage → ProjectCard → TechTags)
-               │   ├─ ProjectDetail       (reads :projectId via useParams, looks up data/projects.js)
-               │   ├─ Contact
-               │   │   └─ ContactForm     (owns `values` / `touched` / `submitted` state)
-               │   └─ NotFound
-               └─ Footer
+```bash
+# In a new terminal window at project root
+npm install
+npm run dev
+# Frontend dev server will start on http://localhost:5173
 ```
 
-**Why theme state lives in `ThemeContext` instead of `App`:** the assignment
-allows lifting it to `App` and passing it down via props, but `Navbar` is a
-sibling of every routed page under `Layout`, and the pages themselves never
-need to read or set the theme. Using Context avoids threading `theme` /
-`setTheme` through `App → Layout → Navbar` as props for a value only one
-component actually consumes, while still keeping the *state itself* — via
-`useState` — as the single source of truth, no external store involved.
+---
 
-**Why `ProjectCard`'s expanded state is local:** each card is a separate
-component instance, so `useState` inside `ProjectCard` is automatically
-scoped per-instance — opening one project's "view details" never affects the
-others. This is intentionally *not* lifted to the `Projects` page, since no
-sibling ever needs to know another card's expanded state.
+## 📁 Architecture & Directory Structure
 
-**Why the contact form's state is local to `ContactForm`:** the values only
-matter for validating and submitting that one form; nothing else in the tree
-needs them.
+The backend lives cleanly inside the `/server` folder and enforces a modular MVC structure:
 
-## Props & prop drilling
+```
+Portfolio_React/
+├── postman_collection.json    # Exported Postman Collection for B1-B7 endpoints
+├── package.json               # Root frontend package.json
+├── src/                       # React Frontend
+│   ├── components/            # UI components (ProjectCard, ContactForm, Navbar, etc.)
+│   ├── pages/                 # Route components (Projects, ProjectDetail, Contact, etc.)
+│   └── data/                  # Profile & skills data
+└── server/                    # Express Backend (MVC Architecture)
+    ├── .env                   # Local environment variables
+    ├── .env.example           # Example environment variables template
+    ├── server.js              # Express app initialization & server startup
+    ├── config/                # Environment configuration
+    ├── data/                  # Server-side JSON storage
+    │   ├── projects.json      # Project records
+    │   └── submissions.json   # Persisted contact submissions
+    ├── models/                # Data Layer (MVC Models)
+    │   ├── projectModel.js    # Data access for projects
+    │   └── contactModel.js    # Data access & file persistence for contact form
+    ├── controllers/           # Business Logic Layer (MVC Controllers)
+    │   ├── projectController.js # Project endpoints handlers
+    │   └── contactController.js # Contact form submission & listing handlers
+    ├── routes/                # Routing Layer (MVC Routes)
+    │   ├── projectRoutes.js   # Endpoint mappings for /api/projects
+    │   └── contactRoutes.js   # Endpoint mappings for /api/contact
+    └── middleware/            # Middleware Layer
+        ├── notFoundHandler.js # Catch-all 404 handler for undefined routes
+        └── errorHandler.js    # Global Express error-handling middleware
+```
 
-- `ProjectCard` is fully generic — it receives `title`, `description`,
-  `tech`, `image`, and `link` via props and renders only what it's given
-  (`src/data/projects.js` is the single source of truth for project content,
-  spread onto each card with `{...project}` in `Projects.jsx`).
-- Prop drilling (2+ levels), demonstrated twice:
-  - `About.jsx` → `AboutBio` (passes the full `profile` object) → `Education`
-    (receives only `profile.education`).
-  - `Projects.jsx` → `ProjectCard` (passes the full project object) →
-    `TechTags` (receives only `project.tech`).
+---
 
-## State (`useState`)
+## ⚙️ Environment Configuration (`.env.example`)
 
-1. **Theme toggle** — `ThemeContext` (`src/context/ThemeContext.jsx`), shared
-   app-wide via Context, flipped by the button in `Navbar`.
-2. **Contact form** — `ContactForm.jsx` holds `values` (controlled
-   name/email/message inputs), `touched` (per-field blur tracking), and a
-   derived `errors` object; the submit button is `disabled` until all fields
-   are valid.
-3. **Per-card "view details"** — each `ProjectCard` instance owns its own
-   `expanded` boolean, proving state is scoped per component instance.
-4. (Bonus) **Home loading flag** and **Navbar mobile menu** are two more
-   independent `useState` values.
+The backend loads configuration settings from `server/.env` using `dotenv`.
 
-## Effects (`useEffect`) and why each is needed
+Copy `server/.env.example` to `server/.env`:
 
-1. **`Home.jsx`** — on mount (`[]` dependency array), starts a `setTimeout`
-   to simulate a ~1s loading sequence before revealing the hero content, and
-   `clearTimeout`s it on unmount so a fast unmount can't call `setState` on
-   an unmounted component.
-2. **`ThemeContext.jsx`** — runs whenever `theme` changes; writes the value
-   to `localStorage` and reflects it on `<html data-theme>` so the CSS
-   variables update immediately. The initial value is read back from
-   `localStorage` (falling back to `prefers-color-scheme`) when the provider
-   first mounts.
-3. **`useWindowWidth.js`** (used by `Navbar` for responsive behavior) —
-   subscribes to `window.resize` on mount and returns a cleanup function
-   that calls `removeEventListener`, preventing a leaked listener across
-   re-renders/unmounts.
+```env
+PORT=5000
+CLIENT_ORIGIN=http://localhost:5173
+```
 
-## Routing
+---
 
-- `react-router-dom` v7, `BrowserRouter` + `Routes`/`Route`.
-- Shared `Layout` (`Navbar` + `<Outlet/>` + `Footer`) wraps every route so
-  navigation persists.
-- Routes: `/home`, `/about`, `/projects`, `/projects/:projectId` (dynamic,
-  read with `useParams`), `/contact`, plus `/` → redirect to `/home` and a
-  `path="*"` catch-all `NotFound` page with a link back to `/home`.
-- All in-app navigation uses `<Link>` / `<NavLink>` — no `<a href>` for
-  internal routes, so there are no full page reloads.
+## 📡 API Documentation & Endpoints
 
-## Known limitations
+### Health Check
 
-- The contact form has no backend yet — submitting just shows a client-side
-  success state (this is intentionally deferred to the API/Express
-  assignment).
-- Project content is static (`src/data/projects.js`); a later assignment
-  will likely fetch this from an API instead.
+#### `GET /`
+- **Description**: Confirms the Express API server is running.
+- **Response (200 OK)**:
+```json
+{
+  "status": "ok"
+}
+```
+
+---
+
+### Projects API
+
+#### `GET /api/projects`
+- **Description**: Returns all portfolio project items.
+- **Response (200 OK)**:
+```json
+[
+  {
+    "id": "luminai",
+    "title": "lumin.ai",
+    "image": "http://localhost:5000/assets/images/project-luminai.png",
+    "description": "Lumin.ai is an AI-powered interview platform...",
+    "tech": [
+      { "name": "HTML", "dot": "#e34c26" },
+      { "name": "CSS", "dot": "#563d7c" },
+      { "name": "JavaScript", "dot": "#f7df1e" },
+      { "name": "Python", "dot": "#3572a5" }
+    ],
+    "link": "https://github.com/pkreddy07/LuminAI"
+  }
+]
+```
+
+#### `GET /api/projects/:id`
+- **Description**: Fetches details for a single project matching the `id`.
+- **Response (200 OK)**:
+```json
+{
+  "id": "luminai",
+  "title": "lumin.ai",
+  "image": "http://localhost:5000/assets/images/project-luminai.png",
+  "description": "Lumin.ai is an AI-powered interview platform...",
+  "tech": [
+    { "name": "HTML", "dot": "#e34c26" },
+    { "name": "CSS", "dot": "#563d7c" },
+    { "name": "JavaScript", "dot": "#f7df1e" },
+    { "name": "Python", "dot": "#3572a5" }
+  ],
+  "link": "https://github.com/pkreddy07/LuminAI"
+}
+```
+- **Error Response (404 Not Found)**:
+```json
+{
+  "error": "Project not found"
+}
+```
+
+---
+
+### Contact API
+
+#### `POST /api/contact`
+- **Description**: Accepts a new contact form submission, performs server-side validation, and persists the payload.
+- **Request Body**:
+```json
+{
+  "name": "Jane Doe",
+  "email": "jane@example.com",
+  "message": "Hello Pranav, I am interested in collaborating!"
+}
+```
+- **Response (201 Created)**:
+```json
+{
+  "message": "Contact form submitted successfully",
+  "submission": {
+    "id": "1742048400000",
+    "name": "Jane Doe",
+    "email": "jane@example.com",
+    "message": "Hello Pranav, I am interested in collaborating!",
+    "createdAt": "2026-09-14T14:10:00.000Z"
+  }
+}
+```
+- **Error Responses (400 Bad Request)**:
+  - Missing field: `{ "error": "Name is required" }` / `{ "error": "Email is required" }` / `{ "error": "Message is required" }`
+  - Invalid email: `{ "error": "Invalid email format" }`
+
+#### `GET /api/contact`
+- **Description**: Retrieves all stored contact form submissions for evaluation/verification.
+- **Note on Security**: This endpoint is intentionally open without authentication for grading & verification purposes.
+- **Response (200 OK)**:
+```json
+[
+  {
+    "id": "1742048400000",
+    "name": "Jane Doe",
+    "email": "jane@example.com",
+    "message": "Hello Pranav, I am interested in collaborating!",
+    "createdAt": "2026-09-14T14:10:00.000Z"
+  }
+]
+```
+
+---
+
+### Undefined Routes & Global Error Handling
+
+#### `GET /api/doesnotexist` (Catch-all 404)
+- **Response (404 Not Found)**:
+```json
+{
+  "error": "Route not found"
+}
+```
+
+#### Global Error Handler
+- Any unhandled runtime errors return HTTP 500 JSON payloads without sending HTML stack traces:
+```json
+{
+  "error": "Internal server error"
+}
+```
+
+---
+
+## 🧪 Postman & cURL Verification
+
+A ready-to-import Postman Collection is included in the project root: `postman_collection.json`.
+
+Sample cURL commands for manual testing:
+```bash
+# B1 - Health Check
+curl -i http://localhost:5000/
+
+# B2 - Get All Projects
+curl -i http://localhost:5000/api/projects
+
+# B3 - Get Single Project
+curl -i http://localhost:5000/api/projects/luminai
+curl -i http://localhost:5000/api/projects/nonexistent
+
+# B4 - Submit Contact Form
+curl -i -X POST http://localhost:5000/api/contact \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Alice","email":"alice@example.com","message":"Great website!"}'
+
+# B4 - Invalid Email Submission (400)
+curl -i -X POST http://localhost:5000/api/contact \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Bob","email":"invalidemail","message":"Test"}'
+
+# B5 - List Submissions (Verification Endpoint)
+curl -i http://localhost:5000/api/contact
+
+# B6 - Catch-all 404 Handler
+curl -i http://localhost:5000/api/doesnotexist
+```
