@@ -64,7 +64,7 @@ Portfolio_React/
 
 ---
 
-## ⚙️ Environment Configuration (`.env.example`)
+## Environment configuration (`.env.example`)
 
 The backend loads configuration settings from `server/.env` using `dotenv`.
 
