@@ -1,10 +1,10 @@
-# Pranav Kumar Reddy — Portfolio (React + Express MVC Backend)
+# Portfolio 
 
 A full-stack React portfolio application powered by a Node.js/Express REST backend built following the Model-View-Controller (MVC) architecture.
 
 ---
 
-## 🚀 How to Run the Application
+## Running the application
 
 The project requires two simple commands to run — one for the backend server and one for the React frontend client.
 
@@ -15,11 +15,6 @@ cd server
 npm install
 npm run dev
 # Server will start on http://localhost:5000
-```
-
-*Alternatively, from the project root:*
-```bash
-npm run server
 ```
 
 ### 2. Start the Frontend Client (`React + Vite`)
@@ -33,7 +28,7 @@ npm run dev
 
 ---
 
-## 📁 Architecture & Directory Structure
+## Architecture & directory structure
 
 The backend lives cleanly inside the `/server` folder and enforces a modular MVC structure:
 
@@ -82,7 +77,7 @@ CLIENT_ORIGIN=http://localhost:5173
 
 ---
 
-## 📡 API Documentation & Endpoints
+## API documentation & endpoints
 
 ### Health Check
 
@@ -194,7 +189,7 @@ CLIENT_ORIGIN=http://localhost:5173
 
 ---
 
-### Undefined Routes & Global Error Handling
+### Undefined routes & global error handling
 
 #### `GET /api/doesnotexist` (Catch-all 404)
 - **Response (404 Not Found)**:
@@ -204,7 +199,7 @@ CLIENT_ORIGIN=http://localhost:5173
 }
 ```
 
-#### Global Error Handler
+#### Global error handler
 - Any unhandled runtime errors return HTTP 500 JSON payloads without sending HTML stack traces:
 ```json
 {
@@ -214,7 +209,7 @@ CLIENT_ORIGIN=http://localhost:5173
 
 ---
 
-## 🧪 Postman & cURL Verification
+## Postman & cURL verification
 
 A ready-to-import Postman Collection is included in the project root: `postman_collection.json`.
 
